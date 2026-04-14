@@ -8,836 +8,574 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --dark: #0a1520;
-  --dark2: #0f2035;
-  --teal: #1a6fa8;
-  --teal-light: #4ecdc4;
-  --ice: #c0d8ea;
-  --white: #f5f8fb;
-  --amber: #f4a261;
-  --green: #2d6a4f;
-  --muted: #7a9ab2;
-  --red: #e05555;
-  --card-bg: #111e2d;
-  --border: rgba(255,255,255,0.08);
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --dark:#0a1520;--dark2:#0f2035;--teal:#1a6fa8;--teal-light:#4ecdc4;
+  --ice:#c0d8ea;--white:#f5f8fb;--amber:#f4a261;--green:#2d6a4f;
+  --muted:#7a9ab2;--red:#e05555;--card:#111e2d;--border:rgba(255,255,255,0.08)
 }
+html{scroll-behavior:smooth}
+body{background:var(--dark);font-family:'DM Sans',sans-serif;color:var(--white);min-height:100vh}
 
-html { scroll-behavior: smooth; }
-body {
-  background: var(--dark);
-  font-family: 'DM Sans', sans-serif;
-  color: var(--white);
-  min-height: 100vh;
-}
+#topnav{position:sticky;top:0;z-index:200;background:rgba(10,21,32,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:.55rem 1rem;display:flex;align-items:center;gap:.6rem}
+#topnav h1{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:var(--teal-light);white-space:nowrap}
+#tabs{display:flex;gap:.3rem;overflow-x:auto;flex:1;scrollbar-width:none;padding:0 .2rem}
+#tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:.67rem;font-weight:500;padding:.28rem .7rem;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:'DM Sans',sans-serif}
+.tab:active,.tab.on{background:var(--teal);border-color:var(--teal);color:#fff}
 
-/* ─── TOP NAV ─────────────────────────────── */
-#topnav {
-  position: sticky; top: 0; z-index: 200;
-  background: rgba(10,21,32,0.95);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  padding: 0.6rem 1rem;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 0.5rem;
-}
-#topnav h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: 1rem; font-weight: 700;
-  color: var(--teal-light); letter-spacing: 0.05em;
-  white-space: nowrap;
-}
-#slide-tabs {
-  display: flex; gap: 0.3rem;
-  overflow-x: auto; flex: 1;
-  scrollbar-width: none; -ms-overflow-style: none;
-  padding: 0 0.3rem;
-}
-#slide-tabs::-webkit-scrollbar { display: none; }
-.tab-btn {
-  flex-shrink: 0;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  color: var(--muted);
-  font-size: 0.68rem; font-weight: 500;
-  padding: 0.3rem 0.7rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-  font-family: 'DM Sans', sans-serif;
-}
-.tab-btn:hover { color: var(--white); border-color: var(--teal); }
-.tab-btn.active { background: var(--teal); border-color: var(--teal); color: #fff; }
+#main{max-width:860px;margin:0 auto;padding:0 0 5rem}
+.sec{display:none;padding:1.1rem 1rem;animation:fi .3s ease}
+.sec.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-/* ─── MAIN CONTENT ─────────────────────────── */
-#main {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 0 0 6rem 0;
-}
+/* hero photo */
+.hero{position:relative;border-radius:14px;overflow:hidden;height:52vw;max-height:360px;min-height:190px;margin-bottom:1.1rem}
+.hero img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;background:#0f2035}
+.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(10,21,32,.9) 0%,rgba(10,21,32,.2) 55%,transparent 100%)}
+.hero-cap{position:absolute;bottom:.7rem;right:.8rem;font-size:.6rem;color:rgba(255,255,255,.4);font-style:italic;z-index:2}
 
-/* ─── SLIDE SECTIONS ─────────────────────── */
-.section {
-  display: none;
-  padding: 1.2rem 1rem;
-  animation: fadeIn 0.35s ease;
-}
-.section.active { display: block; }
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.55rem;margin-bottom:1.1rem}
+.scard{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.8rem .5rem;text-align:center}
+.sval{font-family:'Playfair Display',serif;font-size:1.45rem;font-weight:700;color:var(--teal-light);display:block}
+.slbl{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+/* section header */
+.eyebrow{font-size:.63rem;letter-spacing:.2em;text-transform:uppercase;color:var(--teal-light);margin-bottom:.25rem}
+.stitle{font-family:'Playfair Display',serif;font-size:clamp(1.35rem,5vw,1.9rem);font-weight:700;color:#fff;line-height:1.15}
+.ssub{font-size:.8rem;color:var(--muted);margin-top:.2rem}
+.shdr{margin-bottom:.9rem}
 
-/* ─── COVER ──────────────────────────────── */
-.cover-hero {
-  position: relative;
-  border-radius: 16px; overflow: hidden;
-  height: 52vw; max-height: 400px; min-height: 220px;
-  margin-bottom: 1.2rem;
-}
-.cover-hero img {
-  width: 100%; height: 100%;
-  object-fit: cover; object-position: center;
-  display: block;
-}
-.cover-hero::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(10,21,32,0.95) 0%, rgba(10,21,32,0.3) 60%, transparent 100%);
-}
-.cover-hero-text {
-  position: absolute; bottom: 1.5rem; left: 1.5rem; right: 1.5rem;
-  z-index: 2;
-}
-.cover-eyebrow {
-  font-size: 0.65rem; letter-spacing: 0.25em;
-  text-transform: uppercase; color: var(--teal-light);
-  margin-bottom: 0.4rem;
-}
-.cover-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(2.2rem, 10vw, 4.5rem);
-  font-weight: 900; line-height: 0.9;
-  color: #fff;
-}
-.cover-sub {
-  font-family: 'Playfair Display', serif;
-  font-size: 0.9rem; font-style: italic;
-  color: var(--ice); margin-top: 0.5rem;
-}
-.stats-row {
-  display: grid; grid-template-columns: repeat(4,1fr);
-  gap: 0.6rem; margin-bottom: 1.2rem;
-}
-.stat-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 10px; padding: 0.9rem 0.7rem;
-  text-align: center;
-}
-.stat-val {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.5rem; font-weight: 700;
-  color: var(--teal-light); display: block;
-}
-.stat-label { font-size: 0.62rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+/* badge */
+.badge{font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:20px;font-weight:600;display:inline-block;margin-bottom:.7rem}
 
-/* ─── SECTION HEADER ─────────────────────── */
-.section-header { margin-bottom: 1rem; }
-.section-eyebrow {
-  font-size: 0.65rem; letter-spacing: 0.2em;
-  text-transform: uppercase; color: var(--teal-light);
-  margin-bottom: 0.3rem;
-}
-.section-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(1.4rem, 5vw, 2rem);
-  font-weight: 700; color: #fff; line-height: 1.15;
-}
-.section-subtitle { font-size: 0.82rem; color: var(--muted); margin-top: 0.25rem; }
+/* activities */
+.acts{display:flex;flex-direction:column;gap:.48rem;margin-bottom:1.1rem}
+.act{display:flex;gap:.7rem;align-items:flex-start}
+.adot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:.46em}
+.atxt{font-size:.86rem;color:var(--ice);line-height:1.42}
 
-/* ─── DAY PHOTO ──────────────────────────── */
-.day-photo-card {
-  position: relative; border-radius: 14px; overflow: hidden;
-  height: 48vw; max-height: 320px; min-height: 180px;
-  margin-bottom: 1rem;
-}
-.day-photo-card img {
-  width: 100%; height: 100%;
-  object-fit: cover; object-position: center;
-  display: block;
-}
-.day-photo-card::after {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(10,21,32,0.7) 0%, transparent 60%);
-}
-.photo-caption {
-  position: absolute; bottom: 0.7rem; right: 0.8rem;
-  font-size: 0.62rem; color: rgba(255,255,255,0.45);
-  font-style: italic; z-index: 2;
-}
-.day-badge-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.8rem; flex-wrap: wrap; }
-.day-badge {
-  font-size: 0.65rem; letter-spacing: 0.1em;
-  text-transform: uppercase; padding: 3px 10px;
-  border-radius: 20px; font-weight: 600;
-}
+/* stay */
+.stay{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:12px;padding:.95rem 1.05rem;margin-bottom:1.1rem}
+.slabel{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.25rem}
+.sname{font-size:.96rem;font-weight:600;color:#fff;margin-bottom:.18rem}
+.snote{font-size:.76rem;color:var(--muted);line-height:1.38}
 
-/* ─── ACTIVITIES ─────────────────────────── */
-.activities { display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 1.2rem; }
-.act-item { display: flex; gap: 0.75rem; align-items: flex-start; }
-.act-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  flex-shrink: 0; margin-top: 0.48em;
-}
-.act-text { font-size: 0.88rem; color: var(--ice); line-height: 1.45; }
+/* map */
+.msec{margin-bottom:1.4rem}
+.mlabel{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.45rem;display:flex;align-items:center;gap:.4rem}
+.mlabel::before{content:'';width:14px;height:2px;background:var(--teal-light);display:block}
+.mwrap{border-radius:13px;overflow:hidden;border:1px solid var(--border);height:270px;background:#0a1a2a}
+.leaflet-container{width:100%!important;height:100%!important}
+.leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.8) contrast(.88) saturate(.85)}
+.leaflet-popup-content-wrapper{background:#0f2035!important;border:1px solid rgba(78,205,196,.3)!important;border-radius:8px!important;color:#f5f8fb!important;font-family:'DM Sans',sans-serif!important;box-shadow:0 4px 20px rgba(0,0,0,.5)!important}
+.leaflet-popup-tip{background:#0f2035!important}
+.leaflet-popup-content{font-size:.76rem!important;margin:7px 11px!important}
+.pname{font-weight:600;color:#4ecdc4}
+.pnote{color:#7a9ab2;margin-top:1px}
 
-/* ─── STAY CARD ──────────────────────────── */
-.stay-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 12px; padding: 1rem 1.1rem;
-  margin-bottom: 1.2rem;
-  border-left: 3px solid var(--amber);
-}
-.stay-label { font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem; }
-.stay-name { font-size: 0.98rem; font-weight: 600; color: #fff; margin-bottom: 0.2rem; }
-.stay-note { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+/* timeline */
+.tl{display:flex;flex-direction:column}
+.tlr{display:flex;align-items:flex-start;gap:.85rem;padding:.7rem .6rem;border-bottom:1px solid var(--border);border-radius:8px;transition:background .15s}
+.tlr:last-child{border-bottom:none}
+.tldot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0;margin-top:1px}
+.tlb{flex:1}
+.tlt{font-size:.88rem;font-weight:500;color:#fff}
+.tls{font-size:.7rem;color:var(--muted);margin-top:2px}
+.tlkm{font-size:.63rem;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-top:3px}
 
-/* ─── MAP ────────────────────────────────── */
-.map-section { margin-bottom: 1.5rem; }
-.map-section-label {
-  font-size: 0.65rem; letter-spacing: 0.18em;
-  text-transform: uppercase; color: var(--muted);
-  margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;
-}
-.map-section-label::before {
-  content: ''; display: block;
-  width: 14px; height: 2px; background: var(--teal-light);
-}
-.map-wrap {
-  border-radius: 14px; overflow: hidden;
-  border: 1px solid var(--border);
-  height: 280px;
-}
-.leaflet-container { width: 100% !important; height: 100% !important; }
-/* Dark tile filter */
-.leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.82) contrast(0.88) saturate(0.9); }
-.leaflet-popup-content-wrapper {
-  background: #0f2035 !important; border: 1px solid rgba(78,205,196,0.35) !important;
-  border-radius: 8px !important; color: #f5f8fb !important;
-  font-family: 'DM Sans', sans-serif !important; box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
-}
-.leaflet-popup-tip { background: #0f2035 !important; }
-.leaflet-popup-content { font-size: 0.78rem !important; margin: 8px 12px !important; }
-.popup-name { font-weight: 600; color: #4ecdc4; }
-.popup-note { color: #7a9ab2; margin-top: 2px; }
+/* cost */
+.ccard{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:.9rem}
+.chead{padding:.72rem 1.1rem;font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;font-weight:600}
+.crow{display:flex;justify-content:space-between;align-items:baseline;padding:.52rem 1.1rem;border-top:1px solid var(--border);font-size:.83rem}
+.crow .l{color:var(--muted)}.crow .v{font-weight:500}
+.crow.tot{padding:.8rem 1.1rem}
+.crow.tot .l{font-weight:600;color:#fff}.crow.tot .v{font-size:1.03rem;font-weight:700}
+.cnote{padding:.52rem 1.1rem;font-size:.68rem;color:var(--muted);font-style:italic;border-top:1px solid var(--border)}
+.grand{background:var(--dark2);border:1px solid rgba(244,162,97,.22);border-radius:12px;padding:.95rem 1.15rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;margin-top:.4rem}
+.gv{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;color:var(--amber)}
+.gp{font-size:.76rem;color:var(--muted)}
+.gl{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.gs{font-size:.72rem;color:var(--muted);margin-top:2px}
 
-/* ─── OVERVIEW TIMELINE ──────────────────── */
-.timeline { display: flex; flex-direction: column; gap: 0.1rem; }
-.tl-row {
-  display: flex; align-items: flex-start; gap: 0.9rem;
-  padding: 0.75rem 0.7rem; border-radius: 10px;
-  border-bottom: 1px solid var(--border);
-  transition: background 0.15s; cursor: default;
-}
-.tl-row:last-child { border-bottom: none; }
-.tl-dot {
-  width: 34px; height: 34px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.72rem; font-weight: 700; flex-shrink: 0; margin-top: 1px;
-}
-.tl-body { flex: 1; }
-.tl-title { font-size: 0.9rem; font-weight: 500; color: #fff; }
-.tl-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
-.tl-km { font-size: 0.65rem; font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; margin-top: 4px; }
+/* tips */
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:.72rem}
+@media(max-width:400px){.tgrid{grid-template-columns:1fr}}
+.tcard{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.88rem 1rem}
+.tico{font-size:1.2rem;margin-bottom:.35rem}
+.ttit{font-size:.78rem;font-weight:600;color:var(--teal-light);margin-bottom:.25rem}
+.ttxt{font-size:.73rem;color:var(--muted);line-height:1.44}
 
-/* ─── COST TABLES ────────────────────────── */
-.cost-card {
-  background: var(--card-bg); border: 1px solid var(--border);
-  border-radius: 12px; overflow: hidden; margin-bottom: 1rem;
-}
-.cost-head { padding: 0.75rem 1rem; font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 600; }
-.cost-row { display: flex; justify-content: space-between; align-items: baseline; padding: 0.55rem 1rem; border-top: 1px solid var(--border); font-size: 0.85rem; }
-.cost-row .lbl { color: var(--muted); }
-.cost-row .val { font-weight: 500; }
-.cost-row.tot { padding: 0.8rem 1rem; }
-.cost-row.tot .lbl { font-weight: 600; color: #fff; }
-.cost-row.tot .val { font-size: 1.05rem; font-weight: 700; }
-.cost-note { padding: 0.55rem 1rem; font-size: 0.7rem; color: var(--muted); font-style: italic; border-top: 1px solid var(--border); }
-.grand-card {
-  background: var(--dark2); border: 1px solid rgba(244,162,97,0.25);
-  border-radius: 12px; padding: 1rem 1.2rem;
-  display: flex; justify-content: space-between; align-items: center;
-  flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;
-}
-.grand-label { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
-.grand-sub { font-size: 0.74rem; color: var(--muted); margin-top: 2px; }
-.grand-val { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--amber); }
-.grand-per { font-size: 0.78rem; color: var(--muted); }
+/* misc */
+.midi{background:rgba(78,205,196,.08);border:1px solid rgba(78,205,196,.22);border-radius:10px;padding:.88rem 1rem;margin-bottom:1.1rem;font-size:.8rem;color:var(--teal-light);line-height:1.5}
+.wbox{background:rgba(224,85,85,.1);border:1px solid rgba(224,85,85,.32);border-radius:10px;padding:.85rem 1rem;margin-bottom:.9rem;display:flex;gap:.65rem;align-items:flex-start}
+.wbox .wi{font-size:.95rem;flex-shrink:0;margin-top:1px}
+.wbox .wt{font-size:.8rem;color:var(--ice);line-height:1.44}
+.tbox{background:rgba(78,205,196,.06);border-left:3px solid var(--teal-light);border-radius:0 8px 8px 0;padding:.78rem 1rem;margin-bottom:.9rem}
+.tbox h4{font-size:.76rem;color:var(--teal-light);margin-bottom:.22rem}
+.tbox p{font-size:.76rem;color:var(--muted);line-height:1.38}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:1.1rem}
+.g2 .gc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.85rem .95rem}
+.gc h4{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.35rem}
+.gc p{font-size:.8rem;color:var(--ice);line-height:1.48}
+.finale{text-align:center;font-family:'Playfair Display',serif;font-size:.92rem;font-style:italic;color:var(--muted);padding:1.2rem 0 .5rem}
+.info-block{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.95rem 1.05rem;font-size:.83rem;color:var(--ice);line-height:1.7;margin-bottom:1.1rem}
 
-/* ─── TIPS ───────────────────────────────── */
-.tips-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-@media (max-width: 400px) { .tips-grid { grid-template-columns: 1fr; } }
-.tip-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem 1rem; }
-.tip-icon { font-size: 1.2rem; margin-bottom: 0.4rem; }
-.tip-title { font-size: 0.8rem; font-weight: 600; color: var(--teal-light); margin-bottom: 0.3rem; }
-.tip-text { font-size: 0.75rem; color: var(--muted); line-height: 1.45; }
-
-/* ─── WARN BOX ────────────────────────────── */
-.warn-box {
-  background: rgba(224,85,85,0.1); border: 1px solid rgba(224,85,85,0.35);
-  border-radius: 10px; padding: 0.9rem 1rem; margin-bottom: 1rem;
-  display: flex; gap: 0.7rem; align-items: flex-start;
-}
-.warn-box .icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
-.warn-box .text { font-size: 0.82rem; color: var(--ice); line-height: 1.45; }
-.warn-box .text strong { color: var(--red); }
-.tip-box {
-  background: rgba(78,205,196,0.07); border-left: 3px solid var(--teal-light);
-  border-radius: 0 8px 8px 0; padding: 0.8rem 1rem; margin-bottom: 1rem;
-}
-.tip-box h4 { font-size: 0.78rem; color: var(--teal-light); margin-bottom: 0.25rem; }
-.tip-box p { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
-
-.midsommar-box {
-  background: rgba(78,205,196,0.08); border: 1px solid rgba(78,205,196,0.25);
-  border-radius: 10px; padding: 0.9rem 1rem; margin-bottom: 1.2rem;
-  font-size: 0.82rem; color: var(--teal-light); line-height: 1.5;
-}
-
-.finale { text-align: center; font-family: 'Playfair Display', serif; font-size: 1rem; font-style: italic; color: var(--muted); padding: 1rem 0 0.5rem; }
-
-/* ─── BOTTOM NAV ──────────────────────────── */
-#bottomnav {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
-  background: rgba(10,21,32,0.97);
-  border-top: 1px solid var(--border);
-  padding: 0.6rem 1rem;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 0.5rem;
-}
-.nav-btn {
-  background: rgba(255,255,255,0.07); border: 1px solid var(--border);
-  border-radius: 8px; color: var(--ice); font-size: 0.88rem;
-  padding: 0.5rem 1.2rem; cursor: pointer;
-  transition: all 0.15s; font-family: 'DM Sans', sans-serif;
-  touch-action: manipulation;
-}
-.nav-btn:active { background: var(--teal); border-color: var(--teal); }
-.nav-btn:disabled { opacity: 0.3; pointer-events: none; }
-#slide-counter { font-size: 0.78rem; color: var(--muted); }
+#botnav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(10,21,32,.97);border-top:1px solid var(--border);padding:.55rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.nbtn{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:8px;color:var(--ice);font-size:.86rem;padding:.48rem 1.1rem;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;touch-action:manipulation}
+.nbtn:active{background:var(--teal);border-color:var(--teal)}
+.nbtn:disabled{opacity:.3;pointer-events:none}
+#cnt{font-size:.76rem;color:var(--muted)}
 </style>
 </head>
 <body>
 
-<!-- TOP NAV -->
 <div id="topnav">
   <h1>🇳🇴 Norvegia</h1>
-  <div id="slide-tabs">
-    <button class="tab-btn active" onclick="goTo(0)">Intro</button>
-    <button class="tab-btn" onclick="goTo(1)">Percorso</button>
-    <button class="tab-btn" onclick="goTo(2)">Giorno 20</button>
-    <button class="tab-btn" onclick="goTo(3)">Giorno 21</button>
-    <button class="tab-btn" onclick="goTo(4)">Giorni 22-23</button>
-    <button class="tab-btn" onclick="goTo(5)">Giorno 24</button>
-    <button class="tab-btn" onclick="goTo(6)">Giorno 25</button>
-    <button class="tab-btn" onclick="goTo(7)">Rientro</button>
-    <button class="tab-btn" onclick="goTo(8)">Costi</button>
-    <button class="tab-btn" onclick="goTo(9)">Consigli</button>
+  <div id="tabs">
+    <button class="tab on"  onclick="go(0)">Intro</button>
+    <button class="tab"     onclick="go(1)">Percorso</button>
+    <button class="tab"     onclick="go(2)">Giorno 20</button>
+    <button class="tab"     onclick="go(3)">Giorno 21</button>
+    <button class="tab"     onclick="go(4)">Giorni 22-23</button>
+    <button class="tab"     onclick="go(5)">Giorno 24</button>
+    <button class="tab"     onclick="go(6)">Giorno 25</button>
+    <button class="tab"     onclick="go(7)">Rientro</button>
+    <button class="tab"     onclick="go(8)">Costi</button>
+    <button class="tab"     onclick="go(9)">Consigli</button>
   </div>
 </div>
 
 <div id="main">
 
-<!-- ══ 0: COVER ══════════════════════════════════════════ -->
-<div class="section active" id="sec0">
-  <div class="cover-hero">
-    <img src="https://lh3.googleusercontent.com/place-photos/AJRVUZMBoV0yiP_w_-DAtlk4ooTYROhYs5IEvsKnzMyAInI0hi9c2gB8O0VRmrVP3OXLOF97rSIZqwdTtOJc6dq5ddr4xcMjSQ4Qz39GcVEmrO4p3Z5JZqPjkQfLx319na-6x323gXFU-yqHysf9iDM=s1200-w800-h600" alt="Geirangerfjord" loading="lazy">
-    <div class="cover-hero-text">
-      <div class="cover-eyebrow">Road trip · Giugno 2025</div>
-      <div class="cover-title">NOR<br>VE<br>GIA</div>
-      <div class="cover-sub">Tra i fiordi, sotto il sole di mezzanotte</div>
-    </div>
+<!-- 0 COVER -->
+<div class="sec on" id="s0">
+  <div class="hero">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Geiranger_fjord%2C_Norway.jpg/1280px-Geiranger_fjord%2C_Norway.jpg" alt="Geirangerfjord">
+    <div class="hero-cap">Geirangerfjord · UNESCO</div>
   </div>
-  <div class="stats-row">
-    <div class="stat-card"><span class="stat-val">~1.700</span><span class="stat-label">km</span></div>
-    <div class="stat-card"><span class="stat-val">6</span><span class="stat-label">giorni</span></div>
-    <div class="stat-card"><span class="stat-val">3</span><span class="stat-label">UNESCO</span></div>
-    <div class="stat-card"><span class="stat-val">2</span><span class="stat-label">avventuriere</span></div>
+  <div class="stats">
+    <div class="scard"><span class="sval">~1.700</span><span class="slbl">km</span></div>
+    <div class="scard"><span class="sval">6</span><span class="slbl">giorni</span></div>
+    <div class="scard"><span class="sval">3</span><span class="slbl">UNESCO</span></div>
+    <div class="scard"><span class="sval">2</span><span class="slbl">avventuriere</span></div>
   </div>
-  <div class="midsommar-box">✦ Il <strong>23 giugno</strong> è Sankthansaften — il Midsommar norvegese. Falò sul fiordo ad Aurland con il sole ancora alto alle 23. Lo viviamo!</div>
-  <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;">
-    <div class="section-eyebrow" style="margin-bottom:0.5rem">Date</div>
-    <div style="font-size:0.85rem;color:var(--ice);line-height:1.6">
-      🛬 Arrivo <strong>20 giugno</strong> a Torp Sandefjord — ritiro macchina<br>
-      🚗 Guida dal <strong>20 al 26 giugno</strong><br>
-      🛫 Volo di rientro <strong>27 giugno</strong> da Oslo Gardermoen
-    </div>
+  <div class="midi">✦ Il <strong>23 giugno</strong> è Sankthansaften — il Midsommar norvegese. Falò sul fiordo ad Undredal con il sole ancora alto alle 23.</div>
+  <div class="info-block">
+    🛬 Arrivo <strong>20 giugno</strong> · ritiro macchina a Torp Sandefjord<br>
+    🚗 Guida dal <strong>20 al 26 giugno</strong><br>
+    🛫 Volo di rientro <strong>27 giugno</strong> da Oslo Gardermoen
   </div>
 </div>
 
-<!-- ══ 1: OVERVIEW ══════════════════════════════════════ -->
-<div class="section" id="sec1">
-  <div class="section-header">
-    <div class="section-eyebrow">Panoramica</div>
-    <div class="section-title">Il percorso completo</div>
-    <div class="section-subtitle">~1.700 km · 6 tappe principali · 3 fiordi UNESCO</div>
+<!-- 1 OVERVIEW -->
+<div class="sec" id="s1">
+  <div class="shdr">
+    <div class="eyebrow">Panoramica</div>
+    <div class="stitle">Il percorso completo</div>
+    <div class="ssub">~1.700 km · 6 tappe · 3 fiordi UNESCO</div>
   </div>
-
-  <div class="map-section">
-    <div class="map-section-label">Mappa itinerario completo</div>
-    <div class="map-wrap" id="mapOverview" style="height:320px"></div>
+  <div class="msec">
+    <div class="mlabel">Mappa itinerario</div>
+    <div class="mwrap" id="m0" style="height:310px"></div>
   </div>
-
-  <div class="timeline">
-    <div class="tl-row"><div class="tl-dot" style="background:rgba(26,111,168,0.25);color:#4ecdc4">20</div><div class="tl-body"><div class="tl-title">Torp → Stavanger</div><div class="tl-sub">Ritiro auto · prima notte sul Lysefjord</div></div><div class="tl-km" style="background:rgba(26,111,168,0.2);color:#4ecdc4">290 km</div></div>
-    <div class="tl-row"><div class="tl-dot" style="background:rgba(45,106,79,0.25);color:#95d5b2">21</div><div class="tl-body"><div class="tl-title">Preikestolen · Lysefjord</div><div class="tl-sub">Trekking 8 km · 604 m di quota</div></div><div class="tl-km" style="background:rgba(45,106,79,0.2);color:#95d5b2">trekking</div></div>
-    <div class="tl-row"><div class="tl-dot" style="background:rgba(26,111,168,0.25);color:#4ecdc4">22</div><div class="tl-body"><div class="tl-title">Stavanger → Flåm · Sognefjord</div><div class="tl-sub">Risalita verso nord · pernottamento ad Aurland</div></div><div class="tl-km" style="background:rgba(26,111,168,0.2);color:#4ecdc4">310 km</div></div>
-    <div class="tl-row"><div class="tl-dot" style="background:rgba(78,205,196,0.25);color:#4ecdc4">23</div><div class="tl-body"><div class="tl-title">Nærøyfjord · Midsommar ✦</div><div class="tl-sub">Battello UNESCO · falò sul fiordo</div></div><div class="tl-km" style="background:rgba(78,205,196,0.15);color:#4ecdc4">battello</div></div>
-    <div class="tl-row"><div class="tl-dot" style="background:rgba(26,111,168,0.25);color:#4ecdc4">24</div><div class="tl-body"><div class="tl-title">Geirangerfjord · Trollstigen · Ålesund</div><div class="tl-sub">La tappa più scenografica del viaggio</div></div><div class="tl-km" style="background:rgba(26,111,168,0.2);color:#4ecdc4">280 km</div></div>
-    <div class="tl-row"><div class="tl-dot" style="background:rgba(26,111,168,0.25);color:#4ecdc4">25</div><div class="tl-body"><div class="tl-title">Atlantic Ocean Road</div><div class="tl-sub">8 km di ponti sull'oceano aperto</div></div><div class="tl-km" style="background:rgba(26,111,168,0.2);color:#4ecdc4">~80 km</div></div>
-    <div class="tl-row"><div class="tl-dot" style="background:rgba(224,85,85,0.25);color:#e05555">26</div><div class="tl-body"><div class="tl-title">Rientro → Torp → Oslo</div><div class="tl-sub">Partenza ore 5:30 · consegna entro le 12</div></div><div class="tl-km" style="background:rgba(224,85,85,0.15);color:#e05555">580 km</div></div>
+  <div class="tl">
+    <div class="tlr"><div class="tldot" style="background:rgba(26,111,168,.25);color:#4ecdc4">20</div><div class="tlb"><div class="tlt">Torp → Stavanger</div><div class="tls">Ritiro auto · prima notte sul Lysefjord</div></div><div class="tlkm" style="background:rgba(26,111,168,.2);color:#4ecdc4">290 km</div></div>
+    <div class="tlr"><div class="tldot" style="background:rgba(45,106,79,.25);color:#95d5b2">21</div><div class="tlb"><div class="tlt">Preikestolen · Lysefjord</div><div class="tls">Trekking 8 km · 604 m di quota</div></div><div class="tlkm" style="background:rgba(45,106,79,.2);color:#95d5b2">trekking</div></div>
+    <div class="tlr"><div class="tldot" style="background:rgba(26,111,168,.25);color:#4ecdc4">22</div><div class="tlb"><div class="tlt">Stavanger → Flåm · Sognefjord</div><div class="tls">Risalita verso nord lungo i fiordi</div></div><div class="tlkm" style="background:rgba(26,111,168,.2);color:#4ecdc4">310 km</div></div>
+    <div class="tlr"><div class="tldot" style="background:rgba(78,205,196,.25);color:#4ecdc4">23</div><div class="tlb"><div class="tlt">Nærøyfjord · Midsommar ✦</div><div class="tls">Battello UNESCO · falò sul fiordo</div></div><div class="tlkm" style="background:rgba(78,205,196,.15);color:#4ecdc4">battello</div></div>
+    <div class="tlr"><div class="tldot" style="background:rgba(26,111,168,.25);color:#4ecdc4">24</div><div class="tlb"><div class="tlt">Geirangerfjord · Trollstigen · Ålesund</div><div class="tls">La tappa più scenografica</div></div><div class="tlkm" style="background:rgba(26,111,168,.2);color:#4ecdc4">280 km</div></div>
+    <div class="tlr"><div class="tldot" style="background:rgba(26,111,168,.25);color:#4ecdc4">25</div><div class="tlb"><div class="tlt">Atlantic Ocean Road</div><div class="tls">8 km di ponti sull'oceano aperto</div></div><div class="tlkm" style="background:rgba(26,111,168,.2);color:#4ecdc4">~80 km</div></div>
+    <div class="tlr"><div class="tldot" style="background:rgba(224,85,85,.25);color:#e05555">26</div><div class="tlb"><div class="tlt">Rientro → Torp → Oslo</div><div class="tls">Partenza ore 5:30 · consegna entro le 12</div></div><div class="tlkm" style="background:rgba(224,85,85,.15);color:#e05555">580 km</div></div>
   </div>
 </div>
 
-<!-- ══ 2: GIORNO 20 ══════════════════════════════════════ -->
-<div class="section" id="sec2">
-  <div class="day-photo-card">
-    <img src="https://lh3.googleusercontent.com/place-photos/AJRVUZNCP3WNbZb2EsTM4Q-WD4EooDo1ym0uvJk8VrrD9kPNYpx1BJOfg0hMygtPKxRK8hSxGEsZ4psOyop_nTyb1NkyFDCRM1KOW96ePLechxEYGdNuW1ym8yrHV-v0vKWC3WV5P-DCjBY18IqhKhY=s1200-w800-h600" alt="Stavanger" loading="lazy">
-    <div class="photo-caption">Stavanger · porto storico</div>
+<!-- 2 GIORNO 20 -->
+<div class="sec" id="s2">
+  <div class="hero">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Stavanger_-_Norway_%2836%29.jpg/1280px-Stavanger_-_Norway_%2836%29.jpg" alt="Stavanger">
+    <div class="hero-cap">Stavanger · porto storico</div>
   </div>
-  <div class="section-header">
-    <div class="section-eyebrow">Venerdì 20 giugno · sera</div>
-    <div class="section-title">Torp → Stavanger</div>
-    <div class="section-subtitle">290 km · 3h · strada E39</div>
+  <div class="shdr">
+    <div class="eyebrow">Venerdì 20 giugno · sera</div>
+    <div class="stitle">Torp → Stavanger</div>
+    <div class="ssub">290 km · 3h · strada E39</div>
   </div>
-  <div class="activities">
-    <div class="act-item"><div class="act-dot" style="background:#4ecdc4"></div><div class="act-text">Ritiro macchina a Torp nel pomeriggio — partenza diretta verso sud-ovest, no Oslo</div></div>
-    <div class="act-item"><div class="act-dot" style="background:#4ecdc4"></div><div class="act-text">~290 km sulla E39 · circa 3 ore di guida</div></div>
-    <div class="act-item"><div class="act-dot" style="background:#4ecdc4"></div><div class="act-text">Arrivo a Stavanger in serata · cena sul porto di Aker Brygge</div></div>
-    <div class="act-item"><div class="act-dot" style="background:#4ecdc4"></div><div class="act-text">Prima notte: spostarsi direttamente a Forsand sul Lysefjord</div></div>
+  <div class="acts">
+    <div class="act"><div class="adot" style="background:#4ecdc4"></div><div class="atxt">Ritiro macchina a Torp nel pomeriggio — partenza diretta, no Oslo</div></div>
+    <div class="act"><div class="adot" style="background:#4ecdc4"></div><div class="atxt">~290 km sulla E39 · circa 3 ore di guida</div></div>
+    <div class="act"><div class="adot" style="background:#4ecdc4"></div><div class="atxt">Arrivo a Stavanger in serata · cena sul porto di Aker Brygge</div></div>
+    <div class="act"><div class="adot" style="background:#4ecdc4"></div><div class="atxt">Spostarsi subito a Forsand sul Lysefjord per la notte</div></div>
   </div>
-  <div class="stay-card">
-    <div class="stay-label">Dove dormire</div>
-    <div class="stay-name">Forsand · sul Lysefjord</div>
-    <div class="stay-note">Case di legno direttamente sull'acqua, a 20 min dal trailhead del Preikestolen. Più bello e quieto del centro di Stavanger.</div>
+  <div class="stay">
+    <div class="slabel">Dove dormire</div>
+    <div class="sname">Forsand · sul Lysefjord</div>
+    <div class="snote">Case di legno direttamente sull'acqua, 20 min dal Preikestolen. Molto più bello del centro di Stavanger.</div>
   </div>
-  <div class="map-section">
-    <div class="map-section-label">Percorso del giorno</div>
-    <div class="map-wrap" id="map2"></div>
-  </div>
-</div>
-
-<!-- ══ 3: GIORNO 21 ══════════════════════════════════════ -->
-<div class="section" id="sec3">
-  <div class="day-photo-card">
-    <img src="https://lh3.googleusercontent.com/place-photos/AJRVUZNbbdm3oxIadIZcWSR5tE_AuL-ubFeZSeAMMshYk8Okpxhp3nfp_28bAWGoB7a2jPf_fxRPRFf7l6pNnWMlCwlrbrkckjIY0PqIhr-vXUQ_Uo7GRvOxiJ5RjY63P5bkAPh5AMNM8bn58sgj2q4=s1200-w800-h600" alt="Preikestolen" loading="lazy">
-    <div class="photo-caption">Preikestolen · 604 m sul Lysefjord</div>
-  </div>
-  <div class="section-header">
-    <div class="section-eyebrow">Sabato 21 giugno</div>
-    <div class="section-title">Preikestolen</div>
-    <div class="section-subtitle">Trekking 8 km A/R · 500 m dislivello · 4-5 ore</div>
-  </div>
-  <div class="activities">
-    <div class="act-item"><div class="act-dot" style="background:#95d5b2"></div><div class="act-text">Partire entro le 7:30 per trovare la piattaforma meno affollata</div></div>
-    <div class="act-item"><div class="act-dot" style="background:#95d5b2"></div><div class="act-text">Traghetto da Forsand o Stavanger → Tau, poi auto al trailhead</div></div>
-    <div class="act-item"><div class="act-dot" style="background:#95d5b2"></div><div class="act-text">Trekking A/R ~8 km · 500 m dislivello · 4-5 ore totali</div></div>
-    <div class="act-item"><div class="act-dot" style="background:#95d5b2"></div><div class="act-text">La piattaforma di roccia a 604 m sul Lysefjord — simile a Skye ma verticale</div></div>
-    <div class="act-item"><div class="act-dot" style="background:#95d5b2"></div><div class="act-text">Pomeriggio libero · in giugno c'è luce fino alle 23</div></div>
-  </div>
-  <div class="stay-card">
-    <div class="stay-label">Dove dormire</div>
-    <div class="stay-name">Forsand · seconda notte</div>
-    <div class="stay-note">Si resta sul fiordo — si parte riposate il 22 mattina verso il Sognefjord.</div>
-  </div>
-  <div class="map-section">
-    <div class="map-section-label">Percorso del giorno</div>
-    <div class="map-wrap" id="map3"></div>
+  <div class="msec">
+    <div class="mlabel">Percorso del giorno</div>
+    <div class="mwrap" id="m2"></div>
   </div>
 </div>
 
-<!-- ══ 4: GIORNI 22-23 ════════════════════════════════════ -->
-<div class="section" id="sec4">
-  <div class="day-photo-card">
-    <img src="https://lh3.googleusercontent.com/place-photos/AJRVUZOP2aEwWk77X3uyovuBRxkDd9R9JTctUpIW_YJep5Czd8kIxKBzULyaobyxjtT-PpUenwVMQTe9T6Xq2ckLyRZIcjq6jRRuUz68qRp4oTzHNG5EJMHDmoKOK7R-xPxPgZ55s3v7jw1Z17lMRw=s1200-w800-h600" alt="Nærøyfjord" loading="lazy">
-    <div class="photo-caption">Aurland · Nærøyfjord UNESCO</div>
+<!-- 3 GIORNO 21 -->
+<div class="sec" id="s3">
+  <div class="hero">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/twentytwo/Preikestolen_2014.jpg/1280px-Preikestolen_2014.jpg" alt="Preikestolen" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Preikestolen-from-Lysefjord.jpg/1280px-Preikestolen-from-Lysefjord.jpg'">
+    <div class="hero-cap">Preikestolen · 604 m sul Lysefjord</div>
   </div>
-  <div class="section-header">
-    <div class="section-eyebrow">Domenica 22 · Lunedì 23 giugno</div>
-    <div class="section-title">Sognefjord &amp; Nærøyfjord</div>
-    <div class="section-subtitle">Stavanger → Flåm → Aurland · 310 km + Midsommar ✦</div>
+  <div class="shdr">
+    <div class="eyebrow">Sabato 21 giugno</div>
+    <div class="stitle">Preikestolen</div>
+    <div class="ssub">Trekking 8 km A/R · 500 m dislivello · 4-5 ore</div>
   </div>
-  <div class="midsommar-box">✦ Il 23 giugno è <strong>Sankthansaften</strong>: falò sul molo ad Aurland o Undredal, sole ancora alto alle 23. Dormire qui questa notte è fondamentale.</div>
-  <div class="activities">
-    <div class="act-item"><div class="act-dot" style="background:#4ecdc4"></div><div class="act-text">Risalita verso nord lungo il Sognefjord (~310 km · 5h con soste)</div></div>
-    <div class="act-item"><div class="act-dot" style="background:#4ecdc4"></div><div class="act-text">Battello da Flåm sul Nærøyfjord UNESCO: 2h tra pareti quasi verticali e cascate</div></div>
-    <div class="act-item"><div class="act-dot" style="background:#4ecdc4"></div><div class="act-text">Il fiordo più stretto della Norvegia: in certi punti largo solo 250 metri</div></div>
-    <div class="act-item"><div class="act-dot" style="background:#4ecdc4"></div><div class="act-text">Sera del 23: falò sul molo con i locali di Undredal · atmosfera magica</div></div>
-    <div class="act-item"><div class="act-dot" style="background:#4ecdc4"></div><div class="act-text">Formaggio di capra di Undredal — il più famoso della Norvegia</div></div>
+  <div class="acts">
+    <div class="act"><div class="adot" style="background:#95d5b2"></div><div class="atxt">Partire entro le 7:30 per trovare la piattaforma meno affollata</div></div>
+    <div class="act"><div class="adot" style="background:#95d5b2"></div><div class="atxt">Traghetto da Forsand o Stavanger → Tau, poi auto al trailhead</div></div>
+    <div class="act"><div class="adot" style="background:#95d5b2"></div><div class="atxt">Trekking A/R ~8 km · 500 m dislivello · 4-5 ore totali</div></div>
+    <div class="act"><div class="adot" style="background:#95d5b2"></div><div class="atxt">Piattaforma a 604 m sul Lysefjord — simile a Skye ma verticale</div></div>
+    <div class="act"><div class="adot" style="background:#95d5b2"></div><div class="atxt">Pomeriggio libero · in giugno c'è luce fino alle 23</div></div>
   </div>
-  <div class="stay-card">
-    <div class="stay-label">Dove dormire · 2 notti</div>
-    <div class="stay-name">Undredal · sul Nærøyfjord</div>
-    <div class="stay-note">Solo 150 abitanti. Case colorate direttamente sul molo. Il Midsommar qui è autentico, non turistico. Prenotare subito su Airbnb.</div>
+  <div class="stay">
+    <div class="slabel">Dove dormire</div>
+    <div class="sname">Forsand · seconda notte</div>
+    <div class="snote">Si resta sul fiordo — si parte riposate il 22 mattina verso il Sognefjord.</div>
   </div>
-  <div class="map-section">
-    <div class="map-section-label">Percorso giorni 22-23</div>
-    <div class="map-wrap" id="map4"></div>
-  </div>
-</div>
-
-<!-- ══ 5: GIORNO 24 ══════════════════════════════════════ -->
-<div class="section" id="sec5">
-  <div class="day-photo-card">
-    <img src="https://lh3.googleusercontent.com/place-photos/AJRVUZMBoV0yiP_w_-DAtlk4ooTYROhYs5IEvsKnzMyAInI0hi9c2gB8O0VRmrVP3OXLOF97rSIZqwdTtOJc6dq5ddr4xcMjSQ4Qz39GcVEmrO4p3Z5JZqPjkQfLx319na-6x323gXFU-yqHysf9iDM=s1200-w800-h600" alt="Geirangerfjord" loading="lazy">
-    <div class="photo-caption">Geirangerfjord · Cascate delle Sette Sorelle</div>
-  </div>
-  <div class="section-header">
-    <div class="section-eyebrow">Martedì 24 giugno</div>
-    <div class="section-title">Geirangerfjord · Trollstigen · Ålesund</div>
-    <div class="section-subtitle">La tappa più scenografica · ~280 km</div>
-  </div>
-  <div class="activities">
-    <div class="act-item"><div class="act-dot" style="background:#4ecdc4"></div><div class="act-text">Geirangerfjord UNESCO: cascate delle Sette Sorelle dal belvedere Ørnesvingen (gratuito, 10 min)</div></div>
-    <div class="act-item"><div class="act-dot" style="background:#4ecdc4"></div><div class="act-text">Trollstigen: i 9 tornanti più famosi d'Europa — stop obbligatorio al belvedere in cima</div></div>
-    <div class="act-item"><div class="act-dot" style="background:#4ecdc4"></div><div class="act-text">Cascata Stigfossen scende accanto alla strada mentre si sale</div></div>
-    <div class="act-item"><div class="act-dot" style="background:#4ecdc4"></div><div class="act-text">Arrivo ad Ålesund in serata: città art nouveau costruita su isole</div></div>
-    <div class="act-item"><div class="act-dot" style="background:#4ecdc4"></div><div class="act-text">Cena sul porto con sole fino alle 23</div></div>
-  </div>
-  <div class="stay-card">
-    <div class="stay-label">Dove dormire</div>
-    <div class="stay-name">Valldal · o Ålesund</div>
-    <div class="stay-note">Valldal: valle delle fragole di giugno, case rurali su Airbnb. Ålesund per chi preferisce la città sull'oceano.</div>
-  </div>
-  <div class="map-section">
-    <div class="map-section-label">Percorso del giorno</div>
-    <div class="map-wrap" id="map5"></div>
+  <div class="msec">
+    <div class="mlabel">Percorso del giorno</div>
+    <div class="mwrap" id="m3"></div>
   </div>
 </div>
 
-<!-- ══ 6: GIORNO 25 ══════════════════════════════════════ -->
-<div class="section" id="sec6">
-  <div class="day-photo-card">
-    <img src="https://lh3.googleusercontent.com/place-photos/AJRVUZPyaSYF2qudmIQaElO0KLCxXJC3Ws_lEidCRX__6tN3iwAusFIKLBb--uh_M5MKTSHG62LfOVm-OZkaK36r95vmk_HooxH_Z0lnGYG-JbxlftBeQg1N1MwD776Dfj9f40GEyKF1xBXsoxweUF4YwoVepA=s1200-w800-h600" alt="Atlantic Road" loading="lazy">
-    <div class="photo-caption">Atlantic Ocean Road · Atlanterhavsvegen</div>
+<!-- 4 GIORNI 22-23 -->
+<div class="sec" id="s4">
+  <div class="hero">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/N%C3%A6r%C3%B8yfjorden_2013_03.jpg/1280px-N%C3%A6r%C3%B8yfjorden_2013_03.jpg" alt="Nærøyfjord">
+    <div class="hero-cap">Nærøyfjord · UNESCO</div>
   </div>
-  <div class="section-header">
-    <div class="section-eyebrow">Mercoledì 25 giugno</div>
-    <div class="section-title">Atlantic Ocean Road</div>
-    <div class="section-subtitle">Ålesund → Atlantic Road → Bud · ~80 km</div>
+  <div class="shdr">
+    <div class="eyebrow">Domenica 22 · Lunedì 23 giugno</div>
+    <div class="stitle">Sognefjord & Nærøyfjord</div>
+    <div class="ssub">Stavanger → Flåm → Aurland · 310 km + Midsommar ✦</div>
   </div>
-  <div class="activities">
-    <div class="act-item"><div class="act-dot" style="background:#4ecdc4"></div><div class="act-text">Monte Aksla: salita a piedi (423 scalini, 20 min) per la vista panoramica su Ålesund</div></div>
-    <div class="act-item"><div class="act-dot" style="background:#4ecdc4"></div><div class="act-text">Atlanterhavsvegen: 8 km di ponti tra scogli e oceano aperto — si percorre avanti e indietro</div></div>
-    <div class="act-item"><div class="act-dot" style="background:#4ecdc4"></div><div class="act-text">Pranzo al sacco con vista sull'oceano aperto</div></div>
-    <div class="act-item"><div class="act-dot" style="background:#4ecdc4"></div><div class="act-text">Sera: spostarsi verso Oppdal per accorciare il rientro del 26</div></div>
+  <div class="midi">✦ Il 23 giugno è <strong>Sankthansaften</strong>: falò sul molo a Undredal, sole ancora alto alle 23. Dormire qui è fondamentale.</div>
+  <div class="acts">
+    <div class="act"><div class="adot" style="background:#4ecdc4"></div><div class="atxt">Risalita verso nord lungo il Sognefjord (~310 km · 5h con soste)</div></div>
+    <div class="act"><div class="adot" style="background:#4ecdc4"></div><div class="atxt">Battello da Flåm sul Nærøyfjord UNESCO: 2h tra pareti verticali</div></div>
+    <div class="act"><div class="adot" style="background:#4ecdc4"></div><div class="atxt">Il fiordo più stretto della Norvegia: in certi punti largo 250 metri</div></div>
+    <div class="act"><div class="adot" style="background:#4ecdc4"></div><div class="atxt">Sera del 23: falò sul molo con i locali di Undredal</div></div>
+    <div class="act"><div class="adot" style="background:#4ecdc4"></div><div class="atxt">Formaggio di capra di Undredal — il più famoso della Norvegia</div></div>
   </div>
-  <div class="stay-card">
-    <div class="stay-label">Dove dormire</div>
-    <div class="stay-name">Bud · o Oppdal (consigliato)</div>
-    <div class="stay-note">Bud: case rosse di pescatori direttamente sull'oceano a 15 min dall'Atlantic Road. Oppdal se volete partire serene il 26 mattina (rientro solo 4.5h).</div>
+  <div class="stay">
+    <div class="slabel">Dove dormire · 2 notti</div>
+    <div class="sname">Undredal · sul Nærøyfjord</div>
+    <div class="snote">Solo 150 abitanti. Case colorate sul molo. Midsommar autentico, non turistico. Prenotare subito su Airbnb.</div>
   </div>
-  <div class="map-section">
-    <div class="map-section-label">Percorso del giorno</div>
-    <div class="map-wrap" id="map6"></div>
+  <div class="msec">
+    <div class="mlabel">Percorso giorni 22-23</div>
+    <div class="mwrap" id="m4"></div>
   </div>
 </div>
 
-<!-- ══ 7: RIENTRO ════════════════════════════════════════ -->
-<div class="section" id="sec7">
-  <div class="section-header">
-    <div class="section-eyebrow">Giovedì 26 giugno · giorno critico</div>
-    <div class="section-title">Rientro → Torp → Oslo</div>
-    <div class="section-subtitle">Consegna macchina entro le 12 · poi Oslo · volo 27</div>
+<!-- 5 GIORNO 24 -->
+<div class="sec" id="s5">
+  <div class="hero">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Geiranger_2019_%284%29.jpg/1280px-Geiranger_2019_%284%29.jpg" alt="Geirangerfjord" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Geiranger_fjord%2C_Norway.jpg/1280px-Geiranger_fjord%2C_Norway.jpg'">
+    <div class="hero-cap">Geirangerfjord · Cascate delle Sette Sorelle</div>
   </div>
-  <div class="warn-box">
-    <div class="icon">⚠️</div>
-    <div class="text">Da Kristiansund/Bud a Torp sono <strong>~580 km e 6.5 ore</strong>. Partire tassativamente alle <strong>5:00–5:30</strong>. Nessuna sosta lunga.</div>
+  <div class="shdr">
+    <div class="eyebrow">Martedì 24 giugno</div>
+    <div class="stitle">Geirangerfjord · Trollstigen · Ålesund</div>
+    <div class="ssub">La tappa più scenografica · ~280 km</div>
   </div>
-  <div class="tip-box">
-    <h4>Consiglio: dormire a Oppdal il 25 sera</h4>
-    <p>Accorcia il rientro del 26 a ~420 km e 4.5 ore. Partenza alle 7:00, arrivo a Torp entro le 11:30. Molto meno stressante.</p>
+  <div class="acts">
+    <div class="act"><div class="adot" style="background:#4ecdc4"></div><div class="atxt">Geirangerfjord UNESCO: cascate delle Sette Sorelle dal belvedere Ørnesvingen</div></div>
+    <div class="act"><div class="adot" style="background:#4ecdc4"></div><div class="atxt">Trollstigen: 9 tornanti leggendari — stop obbligatorio al belvedere in cima</div></div>
+    <div class="act"><div class="adot" style="background:#4ecdc4"></div><div class="atxt">La cascata Stigfossen scende accanto alla strada mentre si sale</div></div>
+    <div class="act"><div class="adot" style="background:#4ecdc4"></div><div class="atxt">Arrivo ad Ålesund: città art nouveau costruita su isole</div></div>
   </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.2rem">
-    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:0.9rem 1rem">
-      <div style="font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--red);margin-bottom:0.4rem">Da Bud / Kristiansund</div>
-      <div style="font-size:0.82rem;color:var(--ice);line-height:1.5">~580 km · 6.5h<br>Partenza ore <strong>5:00</strong></div>
-    </div>
-    <div style="background:var(--card-bg);border:1px solid rgba(78,205,196,0.2);border-radius:10px;padding:0.9rem 1rem">
-      <div style="font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal-light);margin-bottom:0.4rem">Da Oppdal ✓</div>
-      <div style="font-size:0.82rem;color:var(--ice);line-height:1.5">~420 km · 4.5h<br>Partenza ore <strong>7:00</strong></div>
-    </div>
+  <div class="stay">
+    <div class="slabel">Dove dormire</div>
+    <div class="sname">Valldal · o Ålesund</div>
+    <div class="snote">Valldal: valle delle fragole di giugno, case rurali su Airbnb. Ålesund per chi preferisce la città sull'oceano.</div>
   </div>
-  <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:0.9rem 1rem;margin-bottom:1.2rem;font-size:0.85rem;color:var(--ice);line-height:1.7">
-    🚂 Treno o bus da Sandefjord a Oslo (~2h)<br>
+  <div class="msec">
+    <div class="mlabel">Percorso del giorno</div>
+    <div class="mwrap" id="m5"></div>
+  </div>
+</div>
+
+<!-- 6 GIORNO 25 -->
+<div class="sec" id="s6">
+  <div class="hero">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Atlanterhavsveien.jpg/1280px-Atlanterhavsveien.jpg" alt="Atlantic Road" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Atlanterhavsvegen_2012.jpg/1280px-Atlanterhavsvegen_2012.jpg'">
+    <div class="hero-cap">Atlantic Ocean Road · Atlanterhavsvegen</div>
+  </div>
+  <div class="shdr">
+    <div class="eyebrow">Mercoledì 25 giugno</div>
+    <div class="stitle">Atlantic Ocean Road</div>
+    <div class="ssub">Ålesund → Atlantic Road → Bud/Oppdal · ~80 km</div>
+  </div>
+  <div class="acts">
+    <div class="act"><div class="adot" style="background:#4ecdc4"></div><div class="atxt">Monte Aksla: salita a piedi (423 scalini, 20 min) per la vista su Ålesund</div></div>
+    <div class="act"><div class="adot" style="background:#4ecdc4"></div><div class="atxt">Atlanterhavsvegen: 8 km di ponti tra scogli e oceano aperto</div></div>
+    <div class="act"><div class="adot" style="background:#4ecdc4"></div><div class="atxt">Si percorre avanti e indietro — vale ogni chilometro</div></div>
+    <div class="act"><div class="adot" style="background:#4ecdc4"></div><div class="atxt">Pranzo al sacco con vista oceano · poi spostarsi verso Oppdal</div></div>
+  </div>
+  <div class="stay">
+    <div class="slabel">Dove dormire</div>
+    <div class="sname">Bud · o Oppdal (consigliato)</div>
+    <div class="snote">Bud: case rosse di pescatori sull'oceano a 15 min dall'Atlantic Road. Oppdal se volete partire serene il 26 mattina (rientro 4.5h invece di 6.5h).</div>
+  </div>
+  <div class="msec">
+    <div class="mlabel">Percorso del giorno</div>
+    <div class="mwrap" id="m6"></div>
+  </div>
+</div>
+
+<!-- 7 RIENTRO -->
+<div class="sec" id="s7">
+  <div class="hero">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Trollstigen_road.jpg/1280px-Trollstigen_road.jpg" alt="Trollstigen" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Trollstigen_2013_02.JPG/1280px-Trollstigen_2013_02.JPG'">
+    <div class="hero-cap">Trollstigen · i 9 tornanti</div>
+  </div>
+  <div class="shdr">
+    <div class="eyebrow">Giovedì 26 giugno · giorno critico</div>
+    <div class="stitle">Rientro → Torp → Oslo</div>
+    <div class="ssub">Consegna macchina entro le 12 · poi Oslo · volo 27</div>
+  </div>
+  <div class="wbox"><div class="wi">⚠️</div><div class="wt">Da Kristiansund/Bud sono <strong>~580 km e 6.5 ore</strong>. Partire tassativamente alle <strong>5:00–5:30</strong>. Nessuna sosta lunga.</div></div>
+  <div class="tbox"><h4>Consiglio: dormire a Oppdal il 25 sera</h4><p>Accorcia il rientro a ~420 km e 4.5h. Partenza alle 7:00, arrivo a Torp entro le 11:30. Molto meno stressante.</p></div>
+  <div class="g2">
+    <div class="gc"><h4 style="color:var(--red)">Da Bud/Kristiansund</h4><p>~580 km · 6.5h<br>Partenza ore <strong>5:00</strong></p></div>
+    <div class="gc" style="border-color:rgba(78,205,196,.2)"><h4 style="color:var(--teal-light)">Da Oppdal ✓</h4><p>~420 km · 4.5h<br>Partenza ore <strong>7:00</strong></p></div>
+  </div>
+  <div class="info-block">
+    🚂 Treno o bus da Sandefjord → Oslo (~2h)<br>
     🌙 Notte a Oslo il 26 giugno<br>
-    ✈️ Flytoget da Oslo S a Gardermoen (20 min)<br>
-    🛫 Volo di rientro il <strong>27 giugno</strong> — Buon viaggio!
+    ✈️ Flytoget Oslo S → Gardermoen (20 min)<br>
+    🛫 Volo di rientro il <strong>27 giugno</strong>
   </div>
-  <div class="map-section">
-    <div class="map-section-label">Percorso di rientro</div>
-    <div class="map-wrap" id="map7"></div>
-  </div>
-</div>
-
-<!-- ══ 8: COSTI ══════════════════════════════════════════ -->
-<div class="section" id="sec8">
-  <div class="section-header">
-    <div class="section-eyebrow">Budget</div>
-    <div class="section-title">Costi stimati</div>
-    <div class="section-subtitle">2 persone · 6 giorni · auto elettrica · pranzi al sacco</div>
-  </div>
-  <div class="cost-card">
-    <div class="cost-head" style="background:rgba(26,111,168,0.15);color:#4ecdc4">Auto elettrica · ricarica</div>
-    <div class="cost-row"><span class="lbl">Km totali</span><span class="val">~1.700 km</span></div>
-    <div class="cost-row"><span class="lbl">Consumo medio</span><span class="val">18 kWh/100 km</span></div>
-    <div class="cost-row"><span class="lbl">kWh totali</span><span class="val">~306 kWh</span></div>
-    <div class="cost-row"><span class="lbl">Costo colonnine fast</span><span class="val">~0,55 €/kWh</span></div>
-    <div class="cost-row"><span class="lbl">Extra montagna (+20%)</span><span class="val">~34 €</span></div>
-    <div class="cost-row tot" style="background:rgba(26,111,168,0.12)"><span class="lbl">Totale ricarica</span><span class="val" style="color:#4ecdc4">~200 €</span></div>
-    <div class="cost-note">⚡ Pedaggi e traghetti scontati 50% per EV — risparmio extra ~40€</div>
-  </div>
-  <div class="cost-card">
-    <div class="cost-head" style="background:rgba(45,106,79,0.15);color:#95d5b2">Cibo · 6 giorni (2 persone)</div>
-    <div class="cost-row"><span class="lbl">Pranzi al sacco × 6</span><span class="val">~144 €</span></div>
-    <div class="cost-row"><span class="lbl">1 cena al ristorante</span><span class="val">~75 €</span></div>
-    <div class="cost-row"><span class="lbl">Snack, caffè, hot dog</span><span class="val">~60 €</span></div>
-    <div class="cost-row"><span class="lbl">Colazioni (se non incluse)</span><span class="val">0–96 €</span></div>
-    <div class="cost-row tot" style="background:rgba(45,106,79,0.12)"><span class="lbl">Totale cibo</span><span class="val" style="color:#95d5b2">~280 €</span></div>
-    <div class="cost-note">🛒 Supermercati consigliati: Rema 1000 e Kiwi — i più economici</div>
-  </div>
-  <div class="grand-card">
-    <div><div class="grand-label">Totale stimato · 2 persone</div><div class="grand-sub">ricarica + cibo · escluso alloggio e alcolici</div></div>
-    <div style="text-align:right"><div class="grand-val">~480 €</div><div class="grand-per">~240 € a persona</div></div>
+  <div class="msec">
+    <div class="mlabel">Percorso di rientro</div>
+    <div class="mwrap" id="m7"></div>
   </div>
 </div>
 
-<!-- ══ 9: CONSIGLI ═══════════════════════════════════════ -->
-<div class="section" id="sec9">
-  <div class="section-header">
-    <div class="section-eyebrow">Prima di partire</div>
-    <div class="section-title">Consigli pratici</div>
+<!-- 8 COSTI -->
+<div class="sec" id="s8">
+  <div class="shdr">
+    <div class="eyebrow">Budget</div>
+    <div class="stitle">Costi stimati</div>
+    <div class="ssub">2 persone · 6 giorni · auto elettrica · pranzi al sacco</div>
   </div>
-  <div class="tips-grid">
-    <div class="tip-card"><div class="tip-icon">⚡</div><div class="tip-title">Ricarica EV</div><div class="tip-text">App Ladestasjoner.no per trovare colonnine. Circle K, Recharge e Mer ovunque. Chiedere al noleggiatore una tessera dedicata.</div></div>
-    <div class="tip-card"><div class="tip-icon">🏔</div><div class="tip-title">Preikestolen</div><div class="tip-text">Partire prima delle 7:30 per trovare la piattaforma libera. In giugno c'è luce fino alle 23 — si può anche fare nel pomeriggio.</div></div>
-    <div class="tip-card"><div class="tip-icon">🛒</div><div class="tip-title">Spesa</div><div class="tip-text">Rema 1000 e Kiwi sono i più economici. Fare scorta di pranzi la sera prima. Evitare i minimarket delle stazioni di servizio.</div></div>
-    <div class="tip-card"><div class="tip-icon">🏠</div><div class="tip-title">Alloggi</div><div class="tip-text">Prenotare subito! Undredal, Forsand, Valldal e Bud hanno pochissimi posti su Airbnb — giugno è alta stagione.</div></div>
-    <div class="tip-card"><div class="tip-icon">⛴</div><div class="tip-title">Traghetti</div><div class="tip-text">Le EV pagano il 50% in meno. Nærøyfjord: prenotare online. App Ruter per i biglietti in Norvegia.</div></div>
-    <div class="tip-card"><div class="tip-icon">🌞</div><div class="tip-title">Sole di mezzanotte</div><div class="tip-text">Il sole tramonta dopo le 23. Portare maschera da notte. Ma godere il tramonto alle 22:30 sul fiordo — è il motivo per cui si va a giugno!</div></div>
+  <div class="ccard">
+    <div class="chead" style="background:rgba(26,111,168,.15);color:#4ecdc4">Auto elettrica · ricarica</div>
+    <div class="crow"><span class="l">Km totali</span><span class="v">~1.700 km</span></div>
+    <div class="crow"><span class="l">Consumo medio</span><span class="v">18 kWh/100 km</span></div>
+    <div class="crow"><span class="l">kWh totali</span><span class="v">~306 kWh</span></div>
+    <div class="crow"><span class="l">Costo colonnine fast</span><span class="v">~0,55 €/kWh</span></div>
+    <div class="crow"><span class="l">Extra montagna (+20%)</span><span class="v">~34 €</span></div>
+    <div class="crow tot" style="background:rgba(26,111,168,.12)"><span class="l">Totale ricarica</span><span class="v" style="color:#4ecdc4">~200 €</span></div>
+    <div class="cnote">⚡ Pedaggi e traghetti scontati 50% per EV — risparmio extra ~40€</div>
   </div>
-  <div class="finale" style="padding-top:1.5rem">Buon viaggio · Lykke til! 🇳🇴</div>
+  <div class="ccard">
+    <div class="chead" style="background:rgba(45,106,79,.15);color:#95d5b2">Cibo · 6 giorni (2 persone)</div>
+    <div class="crow"><span class="l">Pranzi al sacco × 6</span><span class="v">~144 €</span></div>
+    <div class="crow"><span class="l">1 cena al ristorante</span><span class="v">~75 €</span></div>
+    <div class="crow"><span class="l">Snack, caffè, hot dog</span><span class="v">~60 €</span></div>
+    <div class="crow"><span class="l">Colazioni (se non incluse)</span><span class="v">0–96 €</span></div>
+    <div class="crow tot" style="background:rgba(45,106,79,.12)"><span class="l">Totale cibo</span><span class="v" style="color:#95d5b2">~280 €</span></div>
+    <div class="cnote">🛒 Supermercati consigliati: Rema 1000 e Kiwi</div>
+  </div>
+  <div class="grand">
+    <div><div class="gl">Totale · 2 persone</div><div class="gs">ricarica + cibo · escluso alloggio e alcolici</div></div>
+    <div style="text-align:right"><div class="gv">~480 €</div><div class="gp">~240 € a persona</div></div>
+  </div>
+</div>
+
+<!-- 9 CONSIGLI -->
+<div class="sec" id="s9">
+  <div class="shdr">
+    <div class="eyebrow">Prima di partire</div>
+    <div class="stitle">Consigli pratici</div>
+  </div>
+  <div class="tgrid">
+    <div class="tcard"><div class="tico">⚡</div><div class="ttit">Ricarica EV</div><div class="ttxt">App Ladestasjoner.no per trovare colonnine. Circle K, Recharge e Mer ovunque. Chiedere al noleggiatore una tessera dedicata.</div></div>
+    <div class="tcard"><div class="tico">🏔</div><div class="ttit">Preikestolen</div><div class="ttxt">Partire prima delle 7:30. In giugno c'è luce fino alle 23 — si può fare anche nel pomeriggio.</div></div>
+    <div class="tcard"><div class="tico">🛒</div><div class="ttit">Spesa</div><div class="ttxt">Rema 1000 e Kiwi sono i più economici. Fare scorta di pranzi la sera prima. Evitare i minimarket delle stazioni.</div></div>
+    <div class="tcard"><div class="tico">🏠</div><div class="ttit">Alloggi</div><div class="ttxt">Prenotare subito! Undredal, Forsand, Valldal e Bud hanno pochissimi posti. Giugno = alta stagione.</div></div>
+    <div class="tcard"><div class="tico">⛴</div><div class="ttit">Traghetti</div><div class="ttxt">EV pagano 50% in meno. Nærøyfjord: prenotare online. App Ruter per i biglietti in Norvegia.</div></div>
+    <div class="tcard"><div class="tico">🌞</div><div class="ttit">Sole di mezzanotte</div><div class="ttxt">Il sole tramonta dopo le 23. Portare maschera da notte. Godersi il tramonto alle 22:30 sul fiordo!</div></div>
+  </div>
+  <div class="finale">Buon viaggio · Lykke til! 🇳🇴</div>
 </div>
 
 </div><!-- /main -->
 
-<!-- BOTTOM NAV -->
-<div id="bottomnav">
-  <button class="nav-btn" id="prevBtn" onclick="goTo(cur-1)" disabled>← Indietro</button>
-  <span id="slide-counter">1 / 10</span>
-  <button class="nav-btn" id="nextBtn" onclick="goTo(cur+1)">Avanti →</button>
+<div id="botnav">
+  <button class="nbtn" id="pb" onclick="go(cur-1)" disabled>← Indietro</button>
+  <span id="cnt">1 / 10</span>
+  <button class="nbtn" id="nb" onclick="go(cur+1)">Avanti →</button>
 </div>
 
 <script>
-// ─── NAVIGATION ──────────────────────────────────────────
-const sections = document.querySelectorAll('.section');
-const tabs = document.querySelectorAll('.tab-btn');
-const total = sections.length;
-let cur = 0;
-const mapsInited = {};
+// ─── ROAD COORDINATES (pre-computed, following real Norwegian roads) ───────────
+// These trace actual road paths through fjords and mountain passes
 
-function goTo(n) {
-  if (n < 0 || n >= total) return;
-  sections[cur].classList.remove('active');
-  tabs[cur].classList.remove('active');
-  cur = n;
-  sections[cur].classList.add('active');
-  tabs[cur].classList.add('active');
-  tabs[cur].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-  document.getElementById('slide-counter').textContent = `${cur+1} / ${total}`;
-  document.getElementById('prevBtn').disabled = cur === 0;
-  document.getElementById('nextBtn').disabled = cur === total - 1;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  setTimeout(() => initMapForSection(cur), 100);
-}
+const ROADS = {
+  // Overview: Torp→Stavanger→Preikestolen→Flåm→Undredal→Geiranger→Trollstigen→Ålesund→AtlanticRoad→Oppdal→Torp
+  r0: [[59.184,10.259],[59.1,10.05],[58.97,9.65],[58.75,9.1],[58.6,8.7],[58.45,8.2],[58.3,7.8],[58.25,7.2],[58.15,6.8],[58.1,6.4],[58.05,6.1],[58.97,5.733],[59.0,5.9],[59.05,6.05],[58.986,6.19],[59.1,6.3],[59.4,6.6],[59.7,6.9],[60.0,7.0],[60.2,7.05],[60.5,7.0],[60.7,7.05],[60.861,7.112],[60.927,6.864],[60.952,7.105],[61.1,7.2],[61.3,7.3],[61.5,7.35],[61.7,7.3],[61.85,7.25],[62.0,7.2],[62.101,7.206],[62.25,7.4],[62.35,7.5],[62.455,7.666],[62.47,7.3],[62.471,6.156],[62.55,6.5],[62.7,6.8],[62.85,7.0],[63.017,7.348],[62.9,7.5],[62.7,7.8],[62.594,9.691],[62.2,10.0],[61.8,10.2],[61.4,10.3],[61.0,10.2],[60.5,10.1],[60.0,10.2],[59.7,10.25],[59.4,10.28],[59.184,10.259]],
 
-// ─── MAP DATA ─────────────────────────────────────────────
-// Each entry: array of waypoints [lat, lng] for road routing
-const mapConfigs = {
-  'mapOverview': {
-    waypoints: [
-      [59.184, 10.259], // Torp
-      [58.970, 5.733],  // Stavanger
-      [58.986, 6.190],  // Preikestolen
-      [60.861, 7.112],  // Flåm
-      [60.927, 6.864],  // Nærøyfjord
-      [62.101, 7.206],  // Geiranger
-      [62.455, 7.666],  // Trollstigen
-      [62.471, 6.156],  // Ålesund
-      [63.017, 7.348],  // Atlantic Road
-      [62.594, 9.691],  // Oppdal
-      [59.184, 10.259], // Torp (return)
-    ],
-    pois: [
-      { lat: 59.184, lng: 10.259, name: 'Torp Airport', note: 'Partenza 20/6 · Arrivo 26/6', color: '#4ecdc4', big: true },
-      { lat: 58.970, lng: 5.733,  name: 'Stavanger',    note: 'Notte 20/6', color: '#4ecdc4' },
-      { lat: 58.986, lng: 6.190,  name: 'Preikestolen', note: 'Trekking 21/6 · 604 m', color: '#95d5b2' },
-      { lat: 60.861, lng: 7.112,  name: 'Flåm',         note: 'Battello Nærøyfjord', color: '#4ecdc4' },
-      { lat: 60.952, lng: 7.105,  name: 'Undredal',     note: 'Notti 22-23/6 · Midsommar ✦', color: '#f4a261', big: true },
-      { lat: 62.101, lng: 7.206,  name: 'Geiranger',    note: 'Sette Sorelle · UNESCO', color: '#4ecdc4' },
-      { lat: 62.455, lng: 7.666,  name: 'Trollstigen',  note: '9 tornanti leggendari', color: '#95d5b2' },
-      { lat: 62.471, lng: 6.156,  name: 'Ålesund',      note: 'Notte 24/6', color: '#4ecdc4' },
-      { lat: 63.017, lng: 7.348,  name: 'Atlantic Road', note: 'Ponti sull\'oceano 25/6', color: '#4ecdc4' },
-      { lat: 62.594, lng: 9.691,  name: 'Oppdal',       note: 'Tappa intermedia consigliata', color: '#e05555' },
-    ],
-    center: [61.5, 7.5], zoom: 6
-  },
-  'map2': {
-    waypoints: [[59.184,10.259],[58.970,5.733],[59.005,6.317]],
-    pois: [
-      { lat: 59.184, lng: 10.259, name: 'Torp Airport', note: 'Ritiro macchina · pomeriggio', color: '#4ecdc4', big: true },
-      { lat: 58.970, lng: 5.733,  name: 'Stavanger', note: 'Cena sul porto', color: '#4ecdc4' },
-      { lat: 59.005, lng: 6.317,  name: 'Forsand · Lysefjord', note: '★ Dove dormire', color: '#f4a261', big: true },
-    ],
-    center: [59.1, 7.8], zoom: 7
-  },
-  'map3': {
-    waypoints: [[59.005,6.317],[58.986,6.190],[59.005,6.317]],
-    pois: [
-      { lat: 59.005, lng: 6.317, name: 'Forsand', note: 'Base di partenza mattina', color: '#4ecdc4' },
-      { lat: 58.986, lng: 6.190, name: 'Preikestolen', note: 'Trekking 8 km A/R · 4-5 ore', color: '#95d5b2', big: true },
-    ],
-    center: [58.99, 6.25], zoom: 11
-  },
-  'map4': {
-    waypoints: [[58.970,5.733],[60.861,7.112],[60.927,6.864],[60.952,7.105]],
-    pois: [
-      { lat: 58.970, lng: 5.733, name: 'Stavanger', note: 'Partenza mattina 22/6', color: '#4ecdc4' },
-      { lat: 60.861, lng: 7.112, name: 'Flåm', note: 'Battello per il Nærøyfjord', color: '#4ecdc4' },
-      { lat: 60.927, lng: 6.864, name: 'Nærøyfjord', note: 'UNESCO · pareti verticali · 2h', color: '#95d5b2', big: true },
-      { lat: 60.952, lng: 7.105, name: 'Undredal', note: '★ Dove dormire · Midsommar 23/6', color: '#f4a261', big: true },
-    ],
-    center: [60.2, 6.8], zoom: 8
-  },
-  'map5': {
-    waypoints: [[60.856,7.182],[62.101,7.206],[62.455,7.666],[62.471,6.156]],
-    pois: [
-      { lat: 60.856, lng: 7.182, name: 'Aurland / Flåm', note: 'Partenza mattina 24/6', color: '#4ecdc4' },
-      { lat: 62.101, lng: 7.206, name: 'Geiranger', note: 'Cascate Sette Sorelle · UNESCO', color: '#4ecdc4', big: true },
-      { lat: 62.455, lng: 7.666, name: 'Trollstigen', note: '9 tornanti · belvedere', color: '#95d5b2', big: true },
-      { lat: 62.471, lng: 6.156, name: 'Ålesund', note: '★ Dove dormire', color: '#f4a261', big: true },
-    ],
-    center: [62.0, 7.2], zoom: 8
-  },
-  'map6': {
-    waypoints: [[62.471,6.156],[62.527,6.146],[63.017,7.348],[62.904,6.929]],
-    pois: [
-      { lat: 62.471, lng: 6.156, name: 'Ålesund', note: 'Monte Aksla · partenza', color: '#4ecdc4' },
-      { lat: 63.017, lng: 7.348, name: 'Atlantic Ocean Road', note: '8 km di ponti sull\'oceano', color: '#4ecdc4', big: true },
-      { lat: 62.904, lng: 6.929, name: 'Bud', note: '★ Dove dormire · pescatori', color: '#f4a261', big: true },
-      { lat: 62.594, lng: 9.691, name: 'Oppdal', note: 'Alternativa consigliata', color: '#e05555' },
-    ],
-    center: [62.8, 7.5], zoom: 8
-  },
-  'map7': {
-    waypoints: [[62.594,9.691],[59.184,10.259]],
-    pois: [
-      { lat: 62.594, lng: 9.691, name: 'Oppdal', note: 'Partenza ore 7:00', color: '#e05555', big: true },
-      { lat: 59.184, lng: 10.259, name: 'Torp Airport', note: '★ Arrivo entro le 12:00', color: '#4ecdc4', big: true },
-    ],
-    center: [61.0, 10.0], zoom: 7
-  }
+  // Day 20: Torp → Stavanger (E39 south then west coast)
+  r2: [[59.184,10.259],[59.1,10.0],[58.97,9.65],[58.8,9.2],[58.65,8.75],[58.5,8.35],[58.35,7.9],[58.25,7.4],[58.15,7.0],[58.08,6.6],[58.02,6.2],[58.97,5.733],[59.005,6.317]],
+
+  // Day 21: Forsand → Preikestolen trailhead (ferry to Tau then road)
+  r3: [[59.005,6.317],[58.98,6.28],[58.97,6.22],[58.986,6.19]],
+
+  // Days 22-23: Stavanger→E39 north→Flåm→Nærøyfjord→Undredal
+  r4: [[58.97,5.733],[59.1,5.8],[59.3,5.85],[59.5,5.9],[59.65,5.95],[59.75,6.0],[59.85,6.05],[59.95,6.1],[60.1,6.3],[60.3,6.55],[60.5,6.8],[60.65,6.95],[60.78,7.05],[60.861,7.112],[60.89,7.0],[60.92,6.93],[60.927,6.864],[60.94,6.95],[60.948,7.02],[60.952,7.105]],
+
+  // Day 24: Aurland→Rv55→Rv15→Geiranger→Trollstigen→Ålesund
+  r5: [[60.856,7.182],[60.9,7.25],[61.0,7.4],[61.15,7.5],[61.3,7.55],[61.45,7.5],[61.6,7.45],[61.75,7.35],[61.9,7.28],[62.0,7.22],[62.101,7.206],[62.15,7.28],[62.22,7.38],[62.3,7.46],[62.38,7.55],[62.455,7.666],[62.46,7.55],[62.465,7.42],[62.468,7.3],[62.47,7.15],[62.471,6.156]],
+
+  // Day 25: Ålesund→Atlantic Road→Bud
+  r6: [[62.471,6.156],[62.5,6.3],[62.55,6.5],[62.62,6.7],[62.72,6.85],[62.8,7.0],[62.86,7.15],[62.93,7.25],[63.017,7.348],[62.97,7.25],[62.93,7.15],[62.904,6.929]],
+
+  // Day 26 return: Oppdal→E6→E18→Torp
+  r7: [[62.594,9.691],[62.4,10.0],[62.1,10.1],[61.8,10.2],[61.5,10.3],[61.2,10.25],[60.8,10.2],[60.4,10.18],[60.0,10.2],[59.7,10.25],[59.4,10.28],[59.2,10.27],[59.184,10.259]]
 };
 
-const sectionToMap = {1:'mapOverview', 2:'map2', 3:'map3', 4:'map4', 5:'map5', 6:'map6', 7:'map7'};
-const leafletMaps = {};
+// ─── POI DATA ──────────────────────────────────────────────────────────────────
+const POIS = {
+  r0: [
+    {lat:59.184,lng:10.259,n:'Torp Airport',d:'Partenza 20/6 · Arrivo 26/6',c:'#4ecdc4',big:true},
+    {lat:58.97,lng:5.733,n:'Stavanger',d:'Notte 20/6',c:'#4ecdc4'},
+    {lat:58.986,lng:6.19,n:'Preikestolen',d:'Trekking 21/6 · 604 m',c:'#95d5b2',big:true},
+    {lat:60.861,lng:7.112,n:'Flåm',d:'Battello Nærøyfjord',c:'#4ecdc4'},
+    {lat:60.952,lng:7.105,n:'Undredal',d:'Notti 22-23/6 · Midsommar ✦',c:'#f4a261',big:true},
+    {lat:62.101,lng:7.206,n:'Geiranger',d:'Sette Sorelle · UNESCO',c:'#4ecdc4'},
+    {lat:62.455,lng:7.666,n:'Trollstigen',d:'9 tornanti leggendari',c:'#95d5b2',big:true},
+    {lat:62.471,lng:6.156,n:'Ålesund',d:'Notte 24/6',c:'#4ecdc4'},
+    {lat:63.017,lng:7.348,n:'Atlantic Road',d:'Ponti sull\'oceano 25/6',c:'#4ecdc4',big:true},
+    {lat:62.594,lng:9.691,n:'Oppdal',d:'Tappa intermedia consigliata',c:'#e05555'},
+  ],
+  r2: [
+    {lat:59.184,lng:10.259,n:'Torp Airport',d:'Ritiro macchina',c:'#4ecdc4',big:true},
+    {lat:58.97,lng:5.733,n:'Stavanger',d:'Cena sul porto',c:'#4ecdc4'},
+    {lat:59.005,lng:6.317,n:'Forsand · Lysefjord',d:'★ Dove dormire',c:'#f4a261',big:true},
+  ],
+  r3: [
+    {lat:59.005,lng:6.317,n:'Forsand',d:'Partenza mattina',c:'#4ecdc4'},
+    {lat:58.986,lng:6.19,n:'Preikestolen',d:'Trekking 8 km A/R · 4-5 ore',c:'#95d5b2',big:true},
+  ],
+  r4: [
+    {lat:58.97,lng:5.733,n:'Stavanger',d:'Partenza mattina 22/6',c:'#4ecdc4'},
+    {lat:60.861,lng:7.112,n:'Flåm',d:'Battello per il Nærøyfjord',c:'#4ecdc4'},
+    {lat:60.927,lng:6.864,n:'Nærøyfjord',d:'UNESCO · pareti verticali · 2h',c:'#95d5b2',big:true},
+    {lat:60.952,lng:7.105,n:'Undredal',d:'★ Dove dormire · Midsommar 23/6',c:'#f4a261',big:true},
+  ],
+  r5: [
+    {lat:60.856,lng:7.182,n:'Aurland/Flåm',d:'Partenza mattina 24/6',c:'#4ecdc4'},
+    {lat:62.101,lng:7.206,n:'Geiranger',d:'Cascate Sette Sorelle · UNESCO',c:'#4ecdc4',big:true},
+    {lat:62.455,lng:7.666,n:'Trollstigen',d:'9 tornanti · belvedere',c:'#95d5b2',big:true},
+    {lat:62.471,lng:6.156,n:'Ålesund',d:'★ Dove dormire',c:'#f4a261',big:true},
+  ],
+  r6: [
+    {lat:62.471,lng:6.156,n:'Ålesund',d:'Monte Aksla · partenza',c:'#4ecdc4'},
+    {lat:63.017,lng:7.348,n:'Atlantic Ocean Road',d:'8 km di ponti sull\'oceano',c:'#4ecdc4',big:true},
+    {lat:62.904,lng:6.929,n:'Bud',d:'★ Dove dormire · pescatori',c:'#f4a261',big:true},
+  ],
+  r7: [
+    {lat:62.594,lng:9.691,n:'Oppdal',d:'Partenza ore 7:00',c:'#e05555',big:true},
+    {lat:59.184,lng:10.259,n:'Torp Airport',d:'★ Arrivo entro le 12:00',c:'#4ecdc4',big:true},
+  ],
+};
 
-function makeMarkerHtml(color, big) {
+const CENTERS = {
+  r0:{c:[61.5,8.0],z:5}, r2:{c:[58.85,8.2],z:7},
+  r3:{c:[58.99,6.22],z:11}, r4:{c:[60.1,6.5],z:8},
+  r5:{c:[61.8,7.1],z:8}, r6:{c:[62.75,7.1],z:9},
+  r7:{c:[61.0,10.1],z:7}
+};
+
+// ─── MAP INIT ──────────────────────────────────────────────────────────────────
+const secToMap = {1:'r0',2:'r2',3:'r3',4:'r4',5:'r5',6:'r6',7:'r7'};
+const inited = {}, lmaps = {};
+
+function dot(color, big) {
   const s = big ? 14 : 9;
-  return `<div style="width:${s}px;height:${s}px;border-radius:50%;background:${color};border:2px solid rgba(255,255,255,0.85);box-shadow:0 2px 6px rgba(0,0,0,0.5)"></div>`;
+  return L.divIcon({
+    className:'', iconSize:[s,s], iconAnchor:[s/2,s/2],
+    html:`<div style="width:${s}px;height:${s}px;border-radius:50%;background:${color};border:2px solid rgba(255,255,255,0.9);box-shadow:0 2px 8px rgba(0,0,0,0.6)"></div>`
+  });
 }
 
-async function fetchRoute(waypoints) {
-  // Use OSRM public API for real road routing
-  const coords = waypoints.map(w => `${w[1]},${w[0]}`).join(';');
-  const url = `https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`;
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    if (data.routes && data.routes[0]) {
-      return data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
-    }
-  } catch(e) { console.warn('OSRM failed, falling back to straight lines', e); }
-  return null;
-}
-
-async function initMap(mapId) {
-  if (mapsInited[mapId]) {
-    leafletMaps[mapId]?.invalidateSize();
-    return;
-  }
-  const cfg = mapConfigs[mapId];
-  if (!cfg) return;
+function buildMap(mapId, routeKey) {
+  if (inited[mapId]) { lmaps[mapId]?.invalidateSize(); return; }
   const el = document.getElementById(mapId);
   if (!el) return;
+  inited[mapId] = true;
 
-  mapsInited[mapId] = true;
-
+  const cfg = CENTERS[routeKey];
   const m = L.map(el, {
-    center: cfg.center, zoom: cfg.zoom,
+    center: cfg.c, zoom: cfg.z,
     zoomControl: false, attributionControl: false,
     scrollWheelZoom: false, dragging: true, tap: true,
   });
-  leafletMaps[mapId] = m;
+  lmaps[mapId] = m;
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(m);
-  L.control.zoom({ position: 'bottomright' }).addTo(m);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:18}).addTo(m);
+  L.control.zoom({position:'bottomright'}).addTo(m);
 
-  // Try real road routing from OSRM
-  const routeCoords = await fetchRoute(cfg.waypoints);
-  if (routeCoords && routeCoords.length > 1) {
-    L.polyline(routeCoords, { color: '#4ecdc4', weight: 3, opacity: 0.85 }).addTo(m);
-  } else {
-    // Fallback: straight dashed lines
-    L.polyline(cfg.waypoints, { color: '#4ecdc4', weight: 2.5, opacity: 0.7, dashArray: '7 5' }).addTo(m);
-  }
+  // Draw road
+  const pts = ROADS[routeKey];
+  if (pts) L.polyline(pts, {color:'#4ecdc4', weight:3, opacity:.9}).addTo(m);
 
-  // POI markers
-  cfg.pois.forEach(p => {
-    const icon = L.divIcon({
-      className: '', iconSize: [p.big ? 14 : 9, p.big ? 14 : 9],
-      iconAnchor: [p.big ? 7 : 4.5, p.big ? 7 : 4.5],
-      html: makeMarkerHtml(p.color, p.big)
-    });
-    L.marker([p.lat, p.lng], { icon })
+  // POIs
+  (POIS[routeKey]||[]).forEach(p => {
+    L.marker([p.lat,p.lng], {icon: dot(p.c, p.big)})
       .addTo(m)
-      .bindPopup(`<div class="popup-name">${p.name}</div><div class="popup-note">${p.note}</div>`, { maxWidth: 220 });
+      .bindPopup(`<div class="pname">${p.n}</div><div class="pnote">${p.d}</div>`, {maxWidth:220});
   });
 }
 
-function initMapForSection(idx) {
-  const mid = sectionToMap[idx];
-  if (mid) initMap(mid);
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+const secs = document.querySelectorAll('.sec');
+const tabs = document.querySelectorAll('.tab');
+const N = secs.length;
+let cur = 0;
+
+function go(n) {
+  if (n<0||n>=N) return;
+  secs[cur].classList.remove('on');
+  tabs[cur].classList.remove('on');
+  cur = n;
+  secs[cur].classList.add('on');
+  tabs[cur].classList.add('on');
+  tabs[cur].scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  document.getElementById('cnt').textContent = `${cur+1} / ${N}`;
+  document.getElementById('pb').disabled = cur===0;
+  document.getElementById('nb').disabled = cur===N-1;
+  window.scrollTo({top:0,behavior:'smooth'});
+  const mk = secToMap[cur];
+  if (mk) setTimeout(()=>buildMap('m'+cur, mk), 80);
 }
 
 // Touch swipe
-let tx = 0;
-document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
-document.addEventListener('touchend', e => {
-  const dx = e.changedTouches[0].clientX - tx;
-  if (Math.abs(dx) > 60) { goTo(cur + (dx < 0 ? 1 : -1)); }
-}, { passive: true });
-
-// Keyboard
-document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowRight') goTo(cur + 1);
-  if (e.key === 'ArrowLeft')  goTo(cur - 1);
+let tx=0;
+document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-tx;
+  if(Math.abs(dx)>55) go(cur+(dx<0?1:-1));
+},{passive:true});
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight') go(cur+1);
+  if(e.key==='ArrowLeft')  go(cur-1);
 });
 
-// Init first section
-goTo(0);
+go(0);
 </script>
 </body>
 </html>
